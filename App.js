@@ -1,38 +1,51 @@
-import { createStackNavigator } from '@react-navigation/stack';
-import { NavigationContainer } from "@react-navigation/native";
-import SplashScreen from "./app/src/screens/SplashScreen"
-import SignUpScreen from './app/src/screens/SignUpScreen';
-import LoginScreen from './app/src/screens/LoginScreen';
-import DiscussionScreen from './app/src/screens/DiscussionScreen';
-import TapNavigation from "./Navigation"
+import { NavigationContainer } from "@react-navigation/native"
+import React, { useState } from 'react'
+
 import 'react-native-gesture-handler';
-import Drawer from './Drawer';
-import GalerieScreen from './app/src/screens/GalerieScreen';
+import { AuthStack, RootStack } from "./app/routes/routes";
 
+import { AuthenticationContext } from './app/context/AuthenticationContext';
+import AppLoading from 'expo-app-loading';
+import { getVariable } from './app/services/AsyncStorageMethods';
 
-const Stack = createStackNavigator();
+export default function App(){
 
-export default function App() {
-  return (
-    
-    
-    <NavigationContainer>
-
-      <Stack.Navigator screenOptions={{headerShown: false}}>
+  const [authReady , setAuthReady] = useState(false);
+  const [storedCredentials, setStoredCredentials] = useState("")
+  const [userType, setUserType] = useState("");
+  const checkAuthenticationStatus = async () => {
       
-            <Stack.Screen name="SplashScreen" component={SplashScreen} />
-            <Stack.Screen name="SignUpScreen" component={SignUpScreen} />
-            <Stack.Screen name="TapNavigation" component={TapNavigation} />
-            <Stack.Screen name="LoginScreen" component={LoginScreen} />
-            <Stack.Screen name="Drawer" component={Drawer} />
-            <Stack.Screen name="DiscussionScreen" component={DiscussionScreen} />
-            <Stack.Screen name="Galerie" component={GalerieScreen} />
-            
-      </Stack.Navigator>
-    </NavigationContainer>
+    const userInfo = await getVariable("userInformation")
+    setUserType("admin")
 
-    
-    
+    if(userInfo !== null){
+      setStoredCredentials(userInfo)
+    }else{
+      setStoredCredentials(null)
+    }
+    console.log(storedCredentials)
+  }
 
-  );
+  
+  if(!authReady){
+    return (
+        <AppLoading 
+            startAsync={checkAuthenticationStatus}
+            onFinish={() => setAuthReady(true)}
+            onError={(error) => console.log(error)}
+        />
+      )
+  }
+
+  return (
+    <AuthenticationContext.Provider value={{ storedCredentials, setStoredCredentials }}>
+      <NavigationContainer>
+        {storedCredentials != null ? (
+          <AuthStack />
+        ) : (
+          <RootStack userType={userType} />
+        )}
+      </NavigationContainer>
+    </AuthenticationContext.Provider>
+  )
 }
