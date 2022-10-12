@@ -1,10 +1,10 @@
 import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 
-const Welcome = () => {
+const Welcome = ({text}) => {
   return (
     <View>
-      <Text style={styles.Wel}>bienvenu sur votre application  </Text>
+      <Text style={styles.Wel}>{text}</Text>
     </View>
   )
 }
