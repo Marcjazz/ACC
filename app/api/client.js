@@ -10,4 +10,4 @@ const apiResponse = (statusCode, message, data) => {
     return { "statusCode": statusCode, "message": message, "data": data }
 }
 
-export { apiResponse };
+export { apiResponse, api };
